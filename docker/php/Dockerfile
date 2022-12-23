@@ -1,4 +1,4 @@
-FROM php:7.4-fpm
+FROM php:8.1-fpm
 
 # Install necessary libraries for Magento2
 RUN apt-get -y update \
@@ -42,7 +42,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_12.x | bash - \
 RUN npm install -g grunt-cli
 
 ARG UID
-ARG USER=sutunam
+ARG USER=youruser
 
 # Create non-root user
 RUN useradd -m -U ${USER} -u ${UID} -s /bin/bash -o

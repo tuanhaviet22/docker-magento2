@@ -24,7 +24,7 @@ endif
 
 CONSOLE=$(EXEC) php bin/magento
 
-.PHONY=setup install_magento host clean upgrade
+.PHONY=setup host clean upgrade
 
 upgrade:
 	$(CONSOLE) setup:upgrade
@@ -58,6 +58,9 @@ config:
 	$(CONSOLE) config:set web/unsecure/base_url http://magento.local/
 
 
+magento_init:
+	composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition .
+	
 magento_install:
 	$(CONSOLE) setup:install \
 --base-url=http://magento.local/ \
