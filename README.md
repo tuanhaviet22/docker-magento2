@@ -17,3 +17,7 @@ Inside this repository:
 	> BO patch: /boadmin
 	> user: admin
 	> password: admin123
+ 
+
+
+Magento instance with native setup Apache: https://github.com/tuanhaviet22/magento2-instance
