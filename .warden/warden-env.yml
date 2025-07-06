@@ -1,0 +1,21 @@
+services:
+    nginx:
+        volumes:
+            - './:/var/www/html/'
+
+    php-fpm:
+        volumes:
+            - '~/.ssh/:/home/www-data/.ssh/'
+            - './:/var/www/html/'
+        extra_hosts:
+            - app.magento2.test:${TRAEFIK_ADDRESS:-0.0.0.0}
+
+    php-debug:
+        volumes:
+            - './:/var/www/html/'
+        extra_hosts:
+            - app.magento2.test:${TRAEFIK_ADDRESS:-0.0.0.0}
+
+    db:
+        volumes:
+            - .${WARDEN_WEB_ROOT:-}/.warden/db/custom.cnf:/etc/mysql/conf.d/custom.cnf
