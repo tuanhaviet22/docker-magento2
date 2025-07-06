@@ -1,10 +1,30 @@
+# Warden
+/.env
+
+# Magento
+/app/etc/env.php
+/app/etc/config.php
+/generated/*
+/pub/static/*
+/var/*
+/vendor/*
+
+# IDE and system files
+/.idea/
+/.vscode/
+/.DS_Store
+/.AppleDouble
+/.LSOverride
+*.swp
+*.swo
+*~
+
 /.buildpath
 /.cache
 /.metadata
 /.project
 /.settings
-/.vscode
-atlassian*
+/.gitattributes
 /nbproject
 /robots.txt
 /pub/robots.txt
@@ -12,11 +32,7 @@ atlassian*
 /sitemap.xml
 /pub/sitemap
 /pub/sitemap.xml
-/.idea
-/.gitattributes
 /app/config_sandbox
-/app/etc/config.php
-/app/etc/env.php
 /app/code/Magento/TestModule*
 /lib/internal/flex/uploader/.actionScriptProperties
 /lib/internal/flex/uploader/.flexProperties
@@ -62,16 +78,5 @@ atlassian*
 /pub/media/captcha/*
 /pub/media/sitemap/*
 !/pub/media/sitemap/.htaccess
-/pub/static/*
-!/pub/static/.htaccess
-
-/var/*
-!/var/.htaccess
-/vendor/*
-!/vendor/.htaccess
-/generated/*
-!/generated/.htaccess
-.DS_Store
 
 /docker/sql/data
-.env
