@@ -6,42 +6,34 @@
 
 namespace Magento\TestFramework\Authentication\Rest\OauthClient;
 
+use OAuth\Common\Consumer\CredentialsInterface;
+use OAuth\Common\Http\Uri\UriInterface;
 use Magento\Framework\Oauth\Helper\Utility;
 
 /**
  * Signature class for Magento REST API.
  */
-class Signature
+class Signature extends \OAuth\OAuth1\Signature\Signature
 {
     /**
      * @param Utility $helper
+     * @param CredentialsInterface $credentials
      */
-    public function __construct(private readonly Utility $helper)
+    public function __construct(private readonly Utility $helper, CredentialsInterface $credentials)
     {
+        parent::__construct($credentials);
     }
 
     /**
-     * Get the signature
+     * @inheritDoc
      *
-     * @param array $params
-     * @param string $signatureMethod
-     * @param string $consumerSecret
-     * @param string|null $tokenSecret
-     * @param string $httpMethod
-     * @param string $requestUrl
-     * @return string
+     * In addition to the original method, allows array parameters for filters
+     * and matches validation signature algorithm
      */
-    public function getSignature(
-        array $params,
-        string $signatureMethod,
-        string $consumerSecret,
-        ?string $tokenSecret,
-        string $httpMethod,
-        string $requestUrl
-    ): string {
-        $data = parse_url($requestUrl);
-        $queryStringData = !isset($data['query']) ? [] : array_reduce(
-            explode('&', $data['query']),
+    public function getSignature(UriInterface $uri, array $params, $method = 'POST')
+    {
+        $queryStringData = !$uri->getQuery() ? [] : array_reduce(
+            explode('&', $uri->getQuery()),
             function ($carry, $item) {
                 list($key, $value) = explode('=', $item, 2);
                 $carry[rawurldecode($key)] = rawurldecode($value);
@@ -52,11 +44,11 @@ class Signature
 
         return $this->helper->sign(
             array_merge($queryStringData, $params),
-            $signatureMethod,
-            $consumerSecret,
-            $tokenSecret,
-            $httpMethod,
-            $requestUrl
+            $this->algorithm,
+            $this->credentials->getConsumerSecret(),
+            $this->tokenSecret,
+            $method,
+            (string) $uri
         );
     }
 }

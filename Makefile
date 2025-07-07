@@ -1,8 +1,8 @@
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
-DEV_DB := 
-DEV_SSH := 
+DEV_DB :=
+DEV_SSH :=
 PROD_DB :=
 PROD_SSH :=
 
@@ -40,17 +40,6 @@ gitsniff: ## Run phpcs for the changed files only
 	@$(PHP) chmod +x gitsniff.sh
 	@$(PHP) ./gitsniff.sh
 
-# Frontend
-npm_install: ## Run npm install
-	$(NODE) npm --prefix $(TAILWIND_DIR) install $(TAILWIND_DIR)
-
-build: ## Build theme in production mode
-	$(NODE) npm run build-prod --prefix $(TAILWIND_DIR)
-	$(PHP) bin/magento cache:flush
-
-watch: ## Watch your files for changes during the development
-	$(NODE) npm --prefix $(TAILWIND_DIR) run watch
-
 disable_2fa: ## Disable Magento_TwoFactorAuth module
 	$(PHP) bin/magento module:disable Magento_TwoFactorAuth Magento_AdminAdobeImsTwoFactorAuth
 	$(PHP) bin/magento cache:flush
@@ -61,14 +50,42 @@ cron_install: ## Configure and run cron jobs
 	$(PHP) bin/magento cron:run
 
 install: ## Install magento
-	cp .warden/env.php.local app/etc/env.php
-	$(PHP) bin/magento setup:install
+	docker exec -it magento2-php-fpm-1  bash ./install.sh
 
 install_sample_data: ## Install sample data
 	$(PHP) bin/magento sampledata:deploy
-	
+	$(PHP)  bin/magento module:enable \
+		Magento_CatalogSampleData \
+		Magento_BundleSampleData \
+		Magento_GroupedProductSampleData \
+		Magento_DownloadableSampleData \
+		Magento_ThemeSampleData \
+		Magento_ConfigurableSampleData \
+		Magento_ReviewSampleData \
+		Magento_OfflineShippingSampleData \
+		Magento_CatalogRuleSampleData \
+		Magento_TaxSampleData \
+		Magento_SalesRuleSampleData \
+		Magento_SwatchesSampleData \
+		Magento_MsrpSampleData \
+		Magento_CustomerSampleData \
+		Magento_CmsSampleData \
+		Magento_AdminAdobeImsTwoFactorAuth \
+		Magento_SalesSampleData \
+		Magento_ProductLinksSampleData \
+		Magento_WidgetSampleData \
+		Magento_WishlistSampleData
+	$(PHP) bin/magento setup:upgrade
+	$(PHP) bin/magento indexer:reindex
+
 composer_install: ## Install composer dependencies
 	$(PHP) composer install
+
+info: ## Show information about the environment
+	@echo "Admin URL: https://app.magento2.test/admin"
+	@echo "Frontend URL: https://app.magento2.test"
+	@echo "Username: admin"
+	@echo "Password: admin123"
 
 # Help
 help: ## Display this menu

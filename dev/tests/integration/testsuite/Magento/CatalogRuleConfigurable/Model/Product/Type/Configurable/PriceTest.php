@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2020 Adobe
- * All Rights Reserved.
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
  */
 declare(strict_types=1);
 
@@ -105,27 +105,27 @@ class PriceTest extends TestCase
         $indexPrices = [
             'simple_10' => [
                 'price' => 10,
-                'final_price' => 9,
-                'min_price' => 9,
+                'final_price' => 4.5,
+                'min_price' => 4.5,
                 'max_price' => 9,
                 'tier_price' => null
             ],
             'simple_20' => [
                 'price' => 20,
-                'final_price' => 15,
-                'min_price' => 15,
+                'final_price' => 8,
+                'min_price' => 8,
                 'max_price' => 15,
                 'tier_price' => 15
             ],
             'configurable' => [
                 'price' => 0,
                 'final_price' => 0,
-                'min_price' => 9,
-                'max_price' => 30,
+                'min_price' => 4.5,
+                'max_price' => 23,
                 'tier_price' => 15
             ],
         ];
-        $this->assertConfigurableProductPrice(24, 30, $indexPrices);
+        $this->assertConfigurableProductPrice(19.5, 23, $indexPrices);
     }
 
     /**

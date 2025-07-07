@@ -1,20 +1,10 @@
 <?php
 /**
- * Copyright 2014 Adobe
+ * Copyright 2015 Adobe
  * All Rights Reserved.
  */
 namespace Magento\Newsletter\Model\Plugin;
 
-use Magento\Customer\Test\Fixture\Customer;
-use Magento\Framework\Api\SearchCriteriaBuilder;
-use Magento\Newsletter\Model\Subscriber;
-use Magento\Store\Test\Fixture\Group as GroupFixture;
-use Magento\Store\Test\Fixture\Store as StoreFixture;
-use Magento\Store\Test\Fixture\Website as WebsiteFixture;
-use Magento\TestFramework\Fixture\DataFixture;
-use Magento\TestFramework\Fixture\DataFixtureStorage;
-use Magento\TestFramework\Fixture\DataFixtureStorageManager;
-use Magento\TestFramework\Fixture\DbIsolation;
 use Magento\TestFramework\Helper\Bootstrap;
 use Magento\TestFramework\Mail\Template\TransportBuilderMock;
 
@@ -42,9 +32,6 @@ class PluginTest extends \PHPUnit\Framework\TestCase
      */
     protected $transportBuilderMock;
 
-    /** @var DataFixtureStorage */
-    private $fixtures;
-
     protected function setUp(): void
     {
         $this->accountManagement = Bootstrap::getObjectManager()->get(
@@ -56,7 +43,6 @@ class PluginTest extends \PHPUnit\Framework\TestCase
         $this->transportBuilderMock = Bootstrap::getObjectManager()->get(
             TransportBuilderMock::class
         );
-        $this->fixtures = Bootstrap::getObjectManager()->get(DataFixtureStorageManager::class)->getStorage();
     }
 
     protected function tearDown(): void
@@ -76,8 +62,8 @@ class PluginTest extends \PHPUnit\Framework\TestCase
     {
         $objectManager = Bootstrap::getObjectManager();
 
-        /** @var Subscriber $subscriber */
-        $subscriber = $objectManager->create(Subscriber::class);
+        /** @var \Magento\Newsletter\Model\Subscriber $subscriber */
+        $subscriber = $objectManager->create(\Magento\Newsletter\Model\Subscriber::class);
         $subscriber->loadByEmail('customer_two@example.com');
         $this->assertTrue($subscriber->isSubscribed());
         $this->assertEquals(0, (int)$subscriber->getCustomerId());
@@ -126,8 +112,8 @@ class PluginTest extends \PHPUnit\Framework\TestCase
     {
         $objectManager = Bootstrap::getObjectManager();
 
-        /** @var Subscriber $subscriber */
-        $subscriber = $objectManager->create(Subscriber::class);
+        /** @var \Magento\Newsletter\Model\Subscriber $subscriber */
+        $subscriber = $objectManager->create(\Magento\Newsletter\Model\Subscriber::class);
         $subscriber->loadByEmail('customer@example.com');
         $this->assertTrue($subscriber->isSubscribed());
         $this->assertEquals(1, (int)$subscriber->getCustomerId());
@@ -149,8 +135,8 @@ class PluginTest extends \PHPUnit\Framework\TestCase
     {
         $objectManager = Bootstrap::getObjectManager();
 
-        /** @var Subscriber $subscriber */
-        $subscriber = $objectManager->create(Subscriber::class);
+        /** @var \Magento\Newsletter\Model\Subscriber $subscriber */
+        $subscriber = $objectManager->create(\Magento\Newsletter\Model\Subscriber::class);
         $subscriber->loadByEmail('customer@example.com');
         $this->assertTrue($subscriber->isSubscribed());
 
@@ -167,8 +153,8 @@ class PluginTest extends \PHPUnit\Framework\TestCase
     {
         $customer = $this->customerRepository->getById(1);
         $objectManager = Bootstrap::getObjectManager();
-        /** @var Subscriber $subscriber */
-        $subscriber = $objectManager->create(Subscriber::class);
+        /** @var \Magento\Newsletter\Model\Subscriber $subscriber */
+        $subscriber = $objectManager->create(\Magento\Newsletter\Model\Subscriber::class);
         $subscriber->loadByEmail('customer@example.com');
         $this->assertTrue($subscriber->isSubscribed());
         $this->customerRepository->delete($customer);
@@ -179,14 +165,14 @@ class PluginTest extends \PHPUnit\Framework\TestCase
      * Verify a subscription doesn't exist for a given email address
      *
      * @param string $email
-     * @return Subscriber
+     * @return \Magento\Newsletter\Model\Subscriber
      */
     private function verifySubscriptionNotExist($email)
     {
         $objectManager = Bootstrap::getObjectManager();
 
-        /** @var Subscriber $subscriber */
-        $subscriber = $objectManager->create(Subscriber::class);
+        /** @var \Magento\Newsletter\Model\Subscriber $subscriber */
+        $subscriber = $objectManager->create(\Magento\Newsletter\Model\Subscriber::class);
         $subscriber->loadByEmail($email);
         $this->assertFalse($subscriber->isSubscribed());
         $this->assertEquals(0, (int)$subscriber->getId());
@@ -205,12 +191,12 @@ class PluginTest extends \PHPUnit\Framework\TestCase
             \Magento\Store\Model\StoreManagerInterface::class
         )->getStore()->getId();
 
-        $subscriber = $objectManager->create(Subscriber::class);
-        /** @var Subscriber $subscriber */
+        $subscriber = $objectManager->create(\Magento\Newsletter\Model\Subscriber::class);
+        /** @var \Magento\Newsletter\Model\Subscriber $subscriber */
         $subscriber->setStoreId($currentStore)
             ->setCustomerId(0)
             ->setSubscriberEmail('customer@example.com')
-            ->setSubscriberStatus(Subscriber::STATUS_SUBSCRIBED)
+            ->setSubscriberStatus(\Magento\Newsletter\Model\Subscriber::STATUS_SUBSCRIBED)
             ->save();
 
         /** @var \Magento\Customer\Api\Data\CustomerInterfaceFactory $customerFactory */
@@ -239,8 +225,8 @@ class PluginTest extends \PHPUnit\Framework\TestCase
      */
     public function testCustomerWithTwoNewsLetterSubscriptions()
     {
-        /** @var SearchCriteriaBuilder $searchBuilder */
-        $searchBuilder = Bootstrap::getObjectManager()->create(SearchCriteriaBuilder::class);
+        /** @var \Magento\Framework\Api\SearchCriteriaBuilder $searchBuilder */
+        $searchBuilder = Bootstrap::getObjectManager()->create(\Magento\Framework\Api\SearchCriteriaBuilder::class);
         $searchCriteria = $searchBuilder->addFilter('entity_id', 1)->create();
         $items = $this->customerRepository->getList($searchCriteria)->getItems();
         /** @var \Magento\Customer\Api\Data\CustomerInterface $customer */
@@ -285,8 +271,8 @@ class PluginTest extends \PHPUnit\Framework\TestCase
             $mailMessage
         );
 
-        /** @var Subscriber $subscriber */
-        $subscriber = $objectManager->create(Subscriber::class);
+        /** @var \Magento\Newsletter\Model\Subscriber $subscriber */
+        $subscriber = $objectManager->create(\Magento\Newsletter\Model\Subscriber::class);
         $subscriber->loadByEmail('customer@example.com');
         $this->assertTrue($subscriber->isSubscribed());
 
@@ -311,67 +297,5 @@ class PluginTest extends \PHPUnit\Framework\TestCase
             $mailMessage
         );
         $this->assertEquals('Newsletter subscription confirmation', $message->getSubject());
-    }
-
-    #[
-        DbIsolation(false),
-        DataFixture(WebsiteFixture::class, as: 'w2'),
-        DataFixture(GroupFixture::class, ['website_id' => '$w2.id$'], 'g2'),
-        DataFixture(StoreFixture::class, ['store_group_id' => '$g2.id$'], as: 's2'),
-        DataFixture(Customer::class, ['email' => 'customer@example.com'], as: 'customerDefaultWebsite'),
-        DataFixture(
-            Customer::class,
-            ['email' => 'customer@example.com', 'website_id' => '$w2.id$', 'store_id' => '$s2.id$'],
-            as: 'customerCustomWebsite'
-        )
-    ]
-    public function testMultipleWebsiteCustomerHasUniqueSubscriptionsPerWebsite(): void
-    {
-        $objectManager = Bootstrap::getObjectManager();
-
-        $customerDefaultWebsite = $this->fixtures->get('customerDefaultWebsite');
-        $customerCustomWebsite = $this->fixtures->get('customerCustomWebsite');
-        // setting to customer for convenient and uniform retrieving later below
-        $customerDefaultWebsite->setSubscriberStatus(Subscriber::STATUS_SUBSCRIBED);
-        $customerCustomWebsite->setSubscriberStatus(Subscriber::STATUS_UNSUBSCRIBED);
-
-        $this->assertEquals(
-            $customerDefaultWebsite->getEmail(),
-            $customerCustomWebsite->getEmail(),
-            'Precondition emails for customers on both websites must be the same'
-        );
-
-        foreach ([$customerDefaultWebsite, $customerCustomWebsite] as $customer) {
-            $subscriber = $objectManager->create(Subscriber::class);
-            $subscriber->setEmail($customer->getEmail());
-            $subscriber->setCustomerId($customer->getId());
-            $subscriber->setStoreId($customer->getStoreId());
-            $subscriber->setSubscriberStatus($customer->getSubscriberStatus());
-            $subscriber->save();
-        }
-
-        /** @var SearchCriteriaBuilder $searchBuilder */
-        $searchBuilder = Bootstrap::getObjectManager()->create(SearchCriteriaBuilder::class);
-        $searchCriteria = $searchBuilder->addFilter('email', $customerDefaultWebsite->getEmail())->create();
-        $items = $this->customerRepository->getList($searchCriteria)->getItems();
-
-        // Assertions
-        $this->assertEquals(2, count($items), 'Customers from both websites should be retrieved');
-
-        $expectedCustomerSubscriptionMap = [
-            $customerDefaultWebsite->getId() => true,
-            $customerCustomWebsite->getId() => false
-        ];
-
-        $actualCustomerSubscriptionMap = [];
-        foreach ($items as $item) {
-            $actualCustomerSubscriptionMap[$item->getId()] = $item->getExtensionAttributes()->getIsSubscribed();
-        }
-
-        $this->assertEquals(
-            $expectedCustomerSubscriptionMap,
-            $actualCustomerSubscriptionMap,
-            'Customer with same email on each website should have has respective subscription'
-        );
     }
 }

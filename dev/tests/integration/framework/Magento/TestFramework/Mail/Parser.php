@@ -7,12 +7,14 @@ declare(strict_types=1);
 
 namespace Magento\TestFramework\Mail;
 
-use Magento\Framework\Mail\AddressInterface;
 use Magento\Framework\Mail\AddressFactory;
-use Magento\Framework\Mail\EmailMessageInterface;
 use Magento\Framework\Mail\EmailMessageInterfaceFactory;
 use Magento\Framework\Mail\MimeMessageInterfaceFactory;
 use Magento\Framework\Mail\MimePartInterfaceFactory;
+use Symfony\Component\Mime\Part\DataPart;
+use Symfony\Component\Mime\Part\AbstractPart;
+use Symfony\Component\Mime\Message as SymfonyMessage;
+use Symfony\Component\Mime\Address as SymfonyAddress;
 
 class Parser
 {
@@ -59,153 +61,97 @@ class Parser
      * Parses mail string into EmailMessage
      *
      * @param string $content
-     * @return EmailMessageInterface
+     * @return \Magento\Framework\Mail\EmailMessageInterface
      */
-    public function fromString(string $content): EmailMessageInterface
+    public function fromString(string $content): \Magento\Framework\Mail\EmailMessageInterface
     {
-        $parts = preg_split('/\r?\n\r?\n/', $content, 2);
-        $headerText = $parts[0] ?? '';
-        $bodyText = $parts[1] ?? '';
-        $headers = $this->parseHeaders($headerText);
-        $contentType = $headers['Content-Type'] ?? 'text/plain';
-        $charset = $this->extractParameter($contentType, 'charset') ?? 'utf-8';
-        $boundary = $this->extractParameter($contentType, 'boundary');
-        $encoding = $headers['Content-Transfer-Encoding'] ?? 'quoted-printable';
-        $disposition = $headers['Content-Disposition'] ?? 'inline';
-        $decodedBody = match (strtolower($encoding)) {
-            'base64' => base64_decode($bodyText),
-            'quoted-printable' => quoted_printable_decode($bodyText),
-            default => $bodyText,
-        };
+        $part = new DataPart($content);
+        $part->setDisposition('inline');
+        $symfonyMimeMessage = new SymfonyMessage(null, $part);
+        if ($symfonyMimeMessage->getBody() instanceof AbstractPart &&
+            method_exists($symfonyMimeMessage->getBody(), 'getFilename')) {
+            $filename = $symfonyMimeMessage->getBody()->getFilename();
+        } else {
+            $filename = '';
+        }
 
-        $mimePart = $this->mimePartInterfaceFactory->create([
-            'content' => $decodedBody,
-            'type' => strtok($contentType, ';'),
-            'fileName' => '',
-            'disposition' => $disposition,
-            'encoding' => $encoding,
-            'description' => $headers['Content-Description'] ?? '',
-            'filters' => [],
-            'charset' => $charset,
-            'boundary' => $boundary,
-            'location' => $headers['Content-Location'] ?? '',
-            'language' => $headers['Content-Language'] ?? '',
-            'isStream' => false
-        ]);
+        $mimePart = [];
 
-        $mimeMessage = $this->mimeMessageInterfaceFactory->create([
+            /** @var \Magento\Framework\Mail\MimePartInterface $mimePart */
+        $mimePart = $this->mimePartInterfaceFactory->create(
+            [
+                'content' => $symfonyMimeMessage->getBody()->toString(),
+                'type' => 'text/' . $symfonyMimeMessage->getBody()->getMediaSubtype(),
+                'fileName' => $filename,
+                'disposition' => $symfonyMimeMessage->getBody()->getDisposition(),
+                'encoding' => $symfonyMimeMessage->getHeaders()->getHeaderBody('Content-Transfer-Encoding'),
+                'description' => $symfonyMimeMessage->getHeaders()->getHeaderBody('Content-Description'),
+                'filters' => [],
+                'charset' => $symfonyMimeMessage->getHeaders()->get('Content-Type')?->getCharset(),
+                'boundary' => $symfonyMimeMessage->getHeaders()->getHeaderParameter('Content-Type', 'boundary'),
+                'location' => $symfonyMimeMessage->getHeaders()->getHeaderBody('Content-Location'),
+                'language' => $symfonyMimeMessage->getHeaders()->getHeaderBody('Content-Language'),
+                'isStream' => is_resource($symfonyMimeMessage->getBody())
+            ]
+        );
+
+        $body = $this->mimeMessageInterfaceFactory->create([
             'parts' => [$mimePart]
         ]);
 
-        $to = $this->parseAddresses($headers['To'] ?? '');
-        $from = $this->parseAddresses($headers['From'] ?? '');
-        $cc = $this->parseAddresses($headers['Cc'] ?? '');
-        $bcc = $this->parseAddresses($headers['Bcc'] ?? '');
-        $replyTo = $this->parseAddresses($headers['Reply-To'] ?? '');
+        $sender = $symfonyMimeMessage->getHeaders()->get('Sender') ? $this->addressFactory->create([
+            'email' => $symfonyMimeMessage->getHeaders()->get('Sender')->getAddress(),
+            'name' => $symfonyMimeMessage->getHeaders()->get('Sender')->getName()
+        ]): $this->addressFactory->create([
+            'email' => 'sender@example.com',
+            'name' => 'Sender'
+        ]);
 
-        $sender = null;
-        if (!empty($headers['Sender'])) {
-            $senderAddresses = $this->parseAddresses($headers['Sender']);
-            $sender = $senderAddresses[0] ?? null;
-        } elseif (!empty($from)) {
-            $sender = $from[0];
-        }
+        $address = [
+            'email' => 'john@example.com',
+            'name' => 'John'
+        ];
 
         return $this->emailMessageInterfaceFactory->create([
-            'body' => $mimeMessage,
-            'subject' => $headers['Subject'] ?? '',
+            'body' => $body,
+            'subject' => $symfonyMimeMessage->getHeaders()->getHeaderBody('Subject'),
             'sender' => $sender,
-            'to' => $to,
-            'from' => $from,
-            'cc' => $cc,
-            'bcc' => $bcc,
-            'replyTo' => $replyTo,
+            'to' => $this->convertAddresses(
+                $symfonyMimeMessage->getHeaders()->get('To')?->getAddresses()
+                    ?? $address
+            ),
+            'from' => $this->convertAddresses(
+                $symfonyMimeMessage->getHeaders()->get('From')?->getAddresses()
+                    ?? $address
+            ),
+            'cc' => $this->convertAddresses(
+                $symfonyMimeMessage->getHeaders()->get('Cc')?->getAddresses()
+                    ?? $address
+            ),
+            'bcc' => $this->convertAddresses(
+                $symfonyMimeMessage->getHeaders()->get('Bcc')?->getAddresses()
+                    ?? $address
+            ),
+            'replyTo' => $this->convertAddresses(
+                $symfonyMimeMessage->getHeaders()->get('Reply-To')?->getAddresses()
+                    ?? $address
+            ),
         ]);
     }
 
     /**
-     * Parse email headers from string more efficiently
+     * Convert addresses to internal mail addresses
      *
-     * @param string $headerText
-     * @return array<string, string>
+     * @param array $address
+     * @return array
      */
-    private function parseHeaders(string $headerText): array
+    private function convertAddresses(array $address): array
     {
-        if (empty($headerText)) {
-            return [];
-        }
-
-        $headers = [];
-        $lines = preg_split('/\r?\n/', $headerText);
-        $currentHeader = '';
-
-        foreach ($lines as $line) {
-            if (preg_match('/^\s+(.+)$/', $line, $matches)) {
-                if ($currentHeader !== '') {
-                    $headers[$currentHeader] .= ' ' . trim($matches[1]);
-                }
-                continue;
-            }
-            if (preg_match('/^([^:]+):\s*(.*)$/', $line, $matches)) {
-                $currentHeader = $matches[1];
-                $headers[$currentHeader] = trim($matches[2]);
-            }
-        }
-
-        return $headers;
-    }
-
-    /**
-     * Parse email addresses from string
-     *
-     * @param string $addressString
-     * @return array<AddressInterface>
-     */
-    private function parseAddresses(string $addressString): array
-    {
-        if (empty($addressString)) {
-            return [];
-        }
-
-        $addresses = [];
-        $addressParts = explode(',', $addressString);
-
-        foreach ($addressParts as $addressPart) {
-            $addressPart = trim($addressPart);
-            if (preg_match('/^(?:"?([^"]*)"?\s*)?<?([^>]*)>?$/', $addressPart, $matches)) {
-                $name = trim($matches[1]);
-                $email = trim($matches[2]);
-
-                if (empty($email) && filter_var($matches[1], FILTER_VALIDATE_EMAIL)) {
-                    $email = $matches[1];
-                    $name = '';
-                }
-
-                if (!empty($email)) {
-                    $addresses[] = $this->addressFactory->create([
-                        'email' => $email,
-                        'name' => $name
-                    ]);
-                }
-            }
-        }
-
-        return $addresses;
-    }
-
-    /**
-     * Extract parameter value from a header that contains parameters (like Content-Type)s
-     *
-     * @param string $header
-     * @param string $paramName
-     * @return string|null
-     */
-    private function extractParameter(string $header, string $paramName): ?string
-    {
-        if (preg_match('/\b' . preg_quote($paramName) . '=(["\']?)([^"\';\s]+)\1/i', $header, $matches)) {
-            return $matches[2];
-        }
-
-        return null;
+        return [
+            $this->addressFactory->create([
+            'email' => $address['email'],
+            'name' => $address['name']
+            ])
+        ];
     }
 }

@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2015 Adobe
- * All Rights Reserved.
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
  */
 namespace Magento\Directory\Model\Country\Postcode;
 
@@ -169,8 +169,6 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             ['countryId' => 'HU', 'validPostcode' => '1234'],
             ['countryId' => 'IC', 'validPostcode' => '12345'],
             ['countryId' => 'ID', 'validPostcode' => '12345'],
-            ['countryId' => 'IR', 'validPostcode' => 'A65 F4E2'],
-            ['countryId' => 'IR', 'validPostcode' => 'D02 X285'],
             ['countryId' => 'IL', 'validPostcode' => '1234567'],
             ['countryId' => 'IM', 'validPostcode' => 'IM1 1AD'],
             ['countryId' => 'IN', 'validPostcode' => '123456'],

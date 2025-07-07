@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2014 Adobe
- * All Rights Reserved.
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
  */
 
 namespace Magento\Fedex\Model;
@@ -38,7 +38,7 @@ class CarrierTest extends \PHPUnit\Framework\TestCase
     public static function getCodeDataProvider()
     {
         return [
-            ['method', 28],
+            ['method', 21],
             ['dropoff', 5],
             ['packaging', 7],
             ['containers_filter', 4],

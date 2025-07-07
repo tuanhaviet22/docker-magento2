@@ -82,8 +82,7 @@ class UrlRewriteHandlerTest extends TestCase
 
         $expected = [
             'store-1-key.html',
-            'cat-1/store-1-key.html',
-            'p002.html'
+            'cat-1/store-1-key.html'
         ];
         self::assertEquals($expected, $actual, 'Generated URLs rewrites do not match.');
     }
@@ -119,17 +118,16 @@ class UrlRewriteHandlerTest extends TestCase
                 $generatedUrls
             )
         );
-        sort($actual);
 
         $expected = [
-            'cat-1-2/p002.html', // the Secondary store with Category URL key, first store view
-            'cat-1-2/p002.html', // the Secondary store with Category URL key, second store view
-            'cat-1/store-1-key.html', // the Default store with Category URL key, first store view
-            'cat-1/store-1-key.html', // the Default store with Category URL key, second store view
-            'p002.html', // the Secondary store
-            'p002.html', // the Default store
             'store-1-key.html', // the Default store
             'store-1-key.html', // the Secondary store
+            'cat-1/store-1-key.html', // the Default store with Category URL key, first store view
+            'cat-1/store-1-key.html', // the Default store with Category URL key, second store view
+            'p002.html', // the Default store
+            'p002.html', // the Secondary store
+            'cat-1-2/p002.html', // the Secondary store with Category URL key, first store view
+            'cat-1-2/p002.html', // the Secondary store with Category URL key, second store view
         ];
         self::assertEquals($expected, $actual, 'Generated URLs rewrites do not match.');
     }

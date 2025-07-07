@@ -1,17 +1,20 @@
 <?php
 /**
- * Copyright 2015 Adobe
- * All Rights Reserved.
+ * Helper class for generating OAuth related credentials
+ *
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
  */
 namespace Magento\TestFramework\Authentication;
 
 use Magento\Framework\Exception\IntegrationException;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Oauth\Exception;
+use Magento\TestFramework\Authentication\Rest\OauthClient;
 use Magento\TestFramework\Helper\Bootstrap;
+use OAuth\Common\Consumer\Credentials;
 use Laminas\Stdlib\Exception\LogicException;
 use Magento\Integration\Model\Integration;
-use Magento\TestFramework\Authentication\Rest\OauthClient;
 
 /**
  * Authentication Oauth helper
@@ -65,6 +68,41 @@ class OauthHelper
     }
 
     /**
+     * Create an access token to associated to a consumer to access APIs. No resources are available to this consumer.
+     *
+     * @return array comprising of token  key and secret
+     * <pre>
+     * array (
+     *   'key' => 'ajdsjashgdkahsdlkjasldkjals', //token key
+     *   'secret' => 'alsjdlaskjdlaksjdlasjkdlas', //token secret
+     *   'oauth_client' => $oauthClient // OauthClient instance used to fetch the access token
+     *   );
+     * </pre>
+     * @throws LocalizedException
+     * @throws Exception
+     * @throws \OAuth\Common\Http\Exception\TokenResponseException
+     */
+    public static function getAccessToken()
+    {
+        $consumerCredentials = self::getConsumerCredentials();
+        $credentials = new Credentials($consumerCredentials['key'], $consumerCredentials['secret'], TESTS_BASE_URL);
+        $oAuthClient = new OauthClient($credentials);
+        $requestToken = $oAuthClient->requestRequestToken();
+        $accessToken = $oAuthClient->requestAccessToken(
+            $requestToken->getRequestToken(),
+            $consumerCredentials['verifier'],
+            $requestToken->getRequestTokenSecret()
+        );
+
+        /** TODO: Reconsider return format. It is not aligned with method name. */
+        return [
+            'key' => $accessToken->getAccessToken(),
+            'secret' => $accessToken->getAccessTokenSecret(),
+            'oauth_client' => $oAuthClient
+        ];
+    }
+
+    /**
      * Create an access token, tied to integration which has permissions to all API resources in the system.
      *
      * @param array $resources list of resources to grant to the integration
@@ -94,13 +132,14 @@ class OauthHelper
                 throw new LogicException('Access token was not created.');
             }
             $consumer = $oauthService->loadConsumer($integration->getConsumerId());
-            $oauthClientObj = $objectManager->create(OauthClient::class);
-            $oauthClient = $oauthClientObj->create($consumer->getKey(), $consumer->getSecret());
+            $credentials = new Credentials($consumer->getKey(), $consumer->getSecret(), TESTS_BASE_URL);
+            /** @var $oAuthClient OauthClient */
+            $oAuthClient = new OauthClient($credentials);
 
             self::$_apiCredentials = [
                 'key' => $accessToken->getToken(),
                 'secret' => $accessToken->getSecret(),
-                'oauth_client' => $oauthClient,
+                'oauth_client' => $oAuthClient,
                 'integration' => $integration,
             ];
         }

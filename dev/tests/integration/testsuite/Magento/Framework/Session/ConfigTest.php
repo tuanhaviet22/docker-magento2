@@ -1,7 +1,7 @@
 <?php
 /**
  * Copyright 2013 Adobe
- * All Rights Reserved.
+ * All rights reserved.
  */
 declare(strict_types=1);
 // @codingStandardsIgnoreStart

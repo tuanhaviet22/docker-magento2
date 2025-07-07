@@ -254,13 +254,14 @@ class AccountTest extends AbstractController
             );
 
         $this->dispatch('customer/account/confirmation');
+        $this->assertRedirect($this->stringContains('customer/account/index'));
         $this->assertSessionMessages(
             $this->equalTo(
                 [
-                    'Wrong email.',
+                    'This email does not require confirmation.',
                 ]
             ),
-            MessageInterface::TYPE_ERROR
+            MessageInterface::TYPE_SUCCESS
         );
     }
 

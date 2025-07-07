@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2019 Adobe
- * All Rights Reserved.
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
  */
 declare(strict_types=1);
 
@@ -229,9 +229,9 @@ class PlaceOrderWithPaymentsAdvancedTest extends TestCase
         $this->gateway->method('postRequest')->willThrowException($exception);
 
         $responseData = $this->setPaymentMethodAndPlaceOrder($cartId, $paymentMethod);
-        $this->assertArrayHasKey('errors', $responseData);
-        $actualError = $responseData['errors'][0];
-        $this->assertEquals($expectedErrorCode, $actualError['extensions']['error_code']);
+        $this->assertArrayHasKey('errors', $responseData['data']['placeOrder']);
+        $actualError = $responseData['data']['placeOrder']['errors'][0];
+        $this->assertEquals($expectedErrorCode, $actualError['code']);
     }
 
     /**
@@ -267,6 +267,10 @@ class PlaceOrderWithPaymentsAdvancedTest extends TestCase
   placeOrder(input: {cart_id: "$cartId"}) {
     order {
       order_number
+    }
+    errors {
+      message
+      code
     }
   }
 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * Copyright 2020 Adobe
- * All Rights Reserved.
+ *  All Rights Reserved.
  */
 declare(strict_types=1);
 
@@ -160,7 +160,7 @@ class OrderShipmentsTest extends GraphQlAbstract
         $this->assertEquals($shipment2->getIncrementId(), $shipments[1]['number']);
         $this->assertCount(1, $shipments[1]['items']);
     }
-    
+
     /**
      * @magentoConfigFixture default_store carriers/ups/active 1
      * @magentoApiDataFixture Magento/GraphQl/Sales/_files/customer_order_with_ups_shipping.php

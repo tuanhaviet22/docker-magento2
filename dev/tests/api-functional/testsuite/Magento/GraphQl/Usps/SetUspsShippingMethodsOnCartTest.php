@@ -1,9 +1,8 @@
 <?php
 /**
- * Copyright 2025 Adobe
- * * All Rights Reserved.
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
  */
-
 declare(strict_types=1);
 
 namespace Magento\GraphQl\Usps;
@@ -46,12 +45,12 @@ class SetUspsShippingMethodsOnCartTest extends GraphQlAbstract
     /**
      * Defines carrier label for "USPS" shipping method
      */
-    public const CARRIER_TITLE = 'United States Postal Service';
+    const CARRIER_TITLE = 'United States Postal Service';
 
     /**
      * Defines carrier code for "USPS" shipping method
      */
-    public const CARRIER_CODE = 'usps';
+    const CARRIER_CODE = 'usps';
 
     /**
      * @var CustomerTokenServiceInterface
