@@ -296,7 +296,8 @@ namespace Magento\Framework\Session {
 
             if ($this->isComposerBaseInstallation()) {
                 $this->markTestSkipped(
-                    'Skipping: Composer-based installation, php_ini global method does not invoke the session value.'
+                    'Skipping: In Composer-based installations, ' .
+                    'the php_ini global method does not invoke the session value.'
                 );
             }
 
@@ -364,6 +365,11 @@ namespace Magento\Framework\Session {
             );
         }
 
+        /**
+         * Check if is a composer based installation
+         *
+         * @return bool
+         */
         private function isComposerBaseInstallation(): bool
         {
             $isComposerBased = file_exists(BP . '/vendor/magento/magento2-base');

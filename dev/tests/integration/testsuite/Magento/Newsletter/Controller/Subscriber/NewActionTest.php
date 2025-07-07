@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2020 Adobe
- * All Rights Reserved.
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
  */
 declare(strict_types=1);
 
@@ -90,7 +90,7 @@ class NewActionTest extends AbstractController
     }
 
     /**
-     * @magentoConfigFixture current_store newsletter/general/active 1
+     * @magentoConfigFixture newsletter/general/active 1
      *
      * @return void
      */
@@ -107,7 +107,7 @@ class NewActionTest extends AbstractController
     }
 
     /**
-     * @magentoConfigFixture current_store newsletter/general/active 0
+     * @magentoConfigFixture newsletter/general/active 0
      *
      * @return void
      */

@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2015 Adobe
- * All Rights Reserved.
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
  */
 declare(strict_types=1);
 
@@ -134,8 +134,7 @@ class UpgradeCommandTest extends TestCase
     {
         $mediaGalleryNotice = "Media files stored outside of 'Media Gallery Allowed' folders will not be available "
         . "to the media gallery.\n"
-        . "Please refer to Developer Guide for more details.\n"
-        . "Upgrade completed successfully.\n";
+        . "Please refer to Developer Guide for more details.\n";
 
         return [
             [

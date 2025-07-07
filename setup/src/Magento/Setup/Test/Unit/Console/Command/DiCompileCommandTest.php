@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2015 Adobe
- * All Rights Reserved.
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
  */
 declare(strict_types=1);
 
@@ -168,17 +168,10 @@ class DiCompileCommandTest extends TestCase
         $writeDirectory->expects($this->atLeastOnce())->method('delete');
         $this->filesystemMock->expects($this->atLeastOnce())->method('getDirectoryWrite')->willReturn($writeDirectory);
 
-        $this->deploymentConfigMock->expects($this->exactly(2))
+        $this->deploymentConfigMock->expects($this->once())
             ->method('get')
             ->with(ConfigOptionsListConstants::KEY_MODULES)
-            ->willReturn(
-                [
-                    'Magento_Catalog' => 1,
-                    'Module_Test' => 0
-                ]
-            );
-        $this->componentRegistrarMock->expects($this->exactly(2))->method('getPaths');
-
+            ->willReturn(['Magento_Catalog' => 1]);
         $progressBar = new ProgressBar($this->outputMock);
 
         $this->objectManagerMock->expects($this->once())->method('configure');
@@ -188,21 +181,25 @@ class DiCompileCommandTest extends TestCase
             ->with(ProgressBar::class)
             ->willReturn($progressBar);
 
-        $operations = [
-            OperationFactory::REPOSITORY_GENERATOR,
-            OperationFactory::DATA_ATTRIBUTES_GENERATOR,
-            OperationFactory::APPLICATION_CODE_GENERATOR,
-            OperationFactory::INTERCEPTION,
-            OperationFactory::AREA_CONFIG_GENERATOR,
-            OperationFactory::INTERCEPTION_CACHE,
-            OperationFactory::APPLICATION_ACTION_LIST_GENERATOR,
-            OperationFactory::PLUGIN_LIST_GENERATOR,
-        ];
         $this->managerMock->expects($this->exactly(9))->method('addOperation')
-            ->willReturnCallback(function ($arg1, $arg2) use ($operations) {
+            ->willReturnCallback(function ($arg1, $arg2) {
                 if ($arg1 == OperationFactory::PROXY_GENERATOR && empty($arg2)) {
                     return null;
-                } elseif (in_array($arg1, $operations)) {
+                } elseif ($arg1 == OperationFactory::REPOSITORY_GENERATOR) {
+                    return null;
+                } elseif ($arg1 == OperationFactory::DATA_ATTRIBUTES_GENERATOR) {
+                    return null;
+                } elseif ($arg1 == OperationFactory::APPLICATION_CODE_GENERATOR) {
+                    return null;
+                } elseif ($arg1 == OperationFactory::INTERCEPTION) {
+                    return null;
+                } elseif ($arg1 == OperationFactory::AREA_CONFIG_GENERATOR) {
+                    return null;
+                } elseif ($arg1 == OperationFactory::INTERCEPTION_CACHE) {
+                    return null;
+                } elseif ($arg1 == OperationFactory::APPLICATION_ACTION_LIST_GENERATOR) {
+                    return null;
+                } elseif ($arg1 == OperationFactory::PLUGIN_LIST_GENERATOR) {
                     return null;
                 }
             });

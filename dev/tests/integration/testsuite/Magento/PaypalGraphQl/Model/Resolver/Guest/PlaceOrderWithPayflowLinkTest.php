@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2019 Adobe
- * All Rights Reserved.
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
  */
 declare(strict_types=1);
 
@@ -136,6 +136,10 @@ class PlaceOrderWithPayflowLinkTest extends TestCase
       order {
         order_number
       }
+      errors {
+        message
+        code
+      }
     }
 }
 QUERY;
@@ -241,6 +245,10 @@ QUERY;
       order {
         order_number
       }
+      errors {
+        message
+        code
+      }
     }
 }
 QUERY;
@@ -270,11 +278,11 @@ QUERY;
 
         $response = $this->graphQlRequest->send($query);
         $responseData = $this->json->unserialize($response->getContent());
-        $this->assertArrayHasKey('errors', $responseData);
-        $actualError = $responseData['errors'][0];
+        $this->assertArrayHasKey('errors', $responseData['data']['placeOrder']);
+        $actualError = $responseData['data']['placeOrder']['errors'][0];
         $this->assertEquals(
             $expectedErrorCode,
-            $actualError['extensions']['error_code']
+            $actualError['code']
         );
     }
 }

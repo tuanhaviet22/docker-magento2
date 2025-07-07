@@ -98,6 +98,7 @@ class CreateTest extends \PHPUnit\Framework\TestCase
         $order->loadByIncrementId('100000001');
 
         /** @var $orderCreate \Magento\Sales\Model\AdminOrder\Create */
+        $order->setReordered(true);
         $orderCreate = $this->model->initFromOrder($order);
 
         $quoteItems = $orderCreate->getQuote()->getItemsCollection();
@@ -698,7 +699,7 @@ class CreateTest extends \PHPUnit\Framework\TestCase
         /** @var SessionQuote $session */
         $session = $this->objectManager->create(SessionQuote::class);
         $session->setCustomerId($fixtureCustomerId);
-
+        $session->setTransferredItems(['cart' => [124]]);
         /** @var $quoteFixture Quote */
         $quoteFixture = $this->objectManager->create(Quote::class);
         $quoteFixture->load('test01', 'reserved_order_id');
@@ -706,7 +707,6 @@ class CreateTest extends \PHPUnit\Framework\TestCase
 
         $customerQuote = $this->model->getCustomerCart();
         $item = $customerQuote->getAllVisibleItems()[0];
-        $session->setTransferredItems(['cart' => [$item->getId()]]);
 
         $this->model->moveQuoteItem($item, 'cart', 3);
         self::assertEquals(4, $item->getQty(), 'Number of Qty isn\'t correct for Quote item.');

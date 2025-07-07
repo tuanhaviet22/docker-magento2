@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2017 Adobe
- * All Rights Reserved.
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
  */
 declare(strict_types=1);
 
@@ -45,7 +45,7 @@ class PageCacheTest extends TestCase
     public function testGetOptions()
     {
         $options = $this->configList->getOptions();
-        $this->assertCount(14, $options);
+        $this->assertCount(8, $options);
 
         $this->assertArrayHasKey(0, $options);
         $this->assertInstanceOf(SelectConfigOption::class, $options[0]);
@@ -78,30 +78,6 @@ class PageCacheTest extends TestCase
         $this->assertArrayHasKey(7, $options);
         $this->assertInstanceOf(TextConfigOption::class, $options[7]);
         $this->assertEquals('page-cache-id-prefix', $options[7]->getName());
-
-        $this->assertArrayHasKey(8, $options);
-        $this->assertInstanceOf(TextConfigOption::class, $options[8]);
-        $this->assertEquals('page-cache-valkey-server', $options[8]->getName());
-
-        $this->assertArrayHasKey(9, $options);
-        $this->assertInstanceOf(TextConfigOption::class, $options[9]);
-        $this->assertEquals('page-cache-valkey-db', $options[9]->getName());
-
-        $this->assertArrayHasKey(10, $options);
-        $this->assertInstanceOf(TextConfigOption::class, $options[10]);
-        $this->assertEquals('page-cache-valkey-port', $options[10]->getName());
-
-        $this->assertArrayHasKey(11, $options);
-        $this->assertInstanceOf(TextConfigOption::class, $options[11]);
-        $this->assertEquals('page-cache-valkey-password', $options[11]->getName());
-
-        $this->assertArrayHasKey(12, $options);
-        $this->assertInstanceOf(TextConfigOption::class, $options[12]);
-        $this->assertEquals('page-cache-valkey-compress-data', $options[12]->getName());
-
-        $this->assertArrayHasKey(13, $options);
-        $this->assertInstanceOf(TextConfigOption::class, $options[13]);
-        $this->assertEquals('page-cache-valkey-compression-lib', $options[13]->getName());
     }
 
     /**
@@ -137,8 +113,6 @@ class PageCacheTest extends TestCase
 
     /**
      * testCreateConfigWithRedisConfiguration
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function testCreateConfigWithRedisConfiguration()
     {
@@ -252,8 +226,7 @@ class PageCacheTest extends TestCase
 
         $options = [
             'page-cache' => 'redis',
-            'page-cache-redis-db' => '2',
-            'cache-backend' => 'redis'
+            'page-cache-redis-db' => '2'
         ];
 
         $errors = $this->configList->validate($options, $this->deploymentConfigMock);

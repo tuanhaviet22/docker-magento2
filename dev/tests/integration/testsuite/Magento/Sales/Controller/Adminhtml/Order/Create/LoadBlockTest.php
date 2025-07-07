@@ -1,7 +1,7 @@
 <?php
 /**
- * Copyright 2020 Adobe
- * All Rights Reserved.
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
  */
 declare(strict_types=1);
 
@@ -122,7 +122,7 @@ class LoadBlockTest extends AbstractBackendController
         } else {
             $body = $this->getResponse()->getBody();
         }
-        $this->assertStringContainsString("sidebar[add_cart_item][$itemId]", $body);
+        $this->assertStringNotContainsString("sidebar[add_cart_item][$itemId]", $body);
     }
 
     /**
